@@ -1,37 +1,14 @@
 'use client'
 
-import Link from 'next/link'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useState } from 'react'
+import Navbar from '../components/Navbar'
 
 export default function BotPage() {
+  const [filter, setFilter] = useState<'all' | 'compound' | 'rebalance'>('all')
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-indigo-600">
-                Mini-AMM
-              </Link>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/swap" className="text-gray-700 hover:text-indigo-600">
-                交换
-              </Link>
-              <Link href="/liquidity" className="text-gray-700 hover:text-indigo-600">
-                流动性
-              </Link>
-              <Link href="/pool" className="text-gray-700 hover:text-indigo-600">
-                池子
-              </Link>
-              <Link href="/bot" className="text-indigo-600 font-semibold">
-                Bot 记录
-              </Link>
-              <ConnectButton />
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar currentPath="/bot" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
@@ -97,11 +74,34 @@ export default function BotPage() {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold">操作历史</h3>
             <div className="flex gap-2">
-              <button className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-md">全部</button>
-              <button className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+              <button 
+                onClick={() => setFilter('all')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  filter === 'all' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                全部
+              </button>
+              <button 
+                onClick={() => setFilter('compound')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  filter === 'compound' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
                 复投
               </button>
-              <button className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+              <button 
+                onClick={() => setFilter('rebalance')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  filter === 'rebalance' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
                 再平衡
               </button>
             </div>

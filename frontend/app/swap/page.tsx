@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
+import Navbar from '../components/Navbar'
 
 export default function SwapPage() {
   const [amountIn, setAmountIn] = useState('')
@@ -21,32 +20,7 @@ export default function SwapPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-indigo-600">
-                Mini-AMM
-              </Link>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/swap" className="text-indigo-600 font-semibold">
-                交换
-              </Link>
-              <Link href="/liquidity" className="text-gray-700 hover:text-indigo-600">
-                流动性
-              </Link>
-              <Link href="/pool" className="text-gray-700 hover:text-indigo-600">
-                池子
-              </Link>
-              <Link href="/bot" className="text-gray-700 hover:text-indigo-600">
-                Bot 记录
-              </Link>
-              <ConnectButton />
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar currentPath="/swap" />
 
       <main className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-2xl shadow-xl p-6">
@@ -114,15 +88,15 @@ export default function SwapPage() {
             <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">价格</span>
-                <span className="font-medium">1 TKA = 1.000 TKB</span>
+                <span className="font-semibold text-gray-900">1 TKA = <span className="text-indigo-600">1.000</span> TKB</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">滑点容差</span>
-                <span className="font-medium">0.5%</span>
+                <span className="font-semibold text-gray-900"><span className="text-indigo-600">0.5</span>%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">流动性提供商费用</span>
-                <span className="font-medium">0.3%</span>
+                <span className="font-semibold text-gray-900"><span className="text-indigo-600">0.3</span>%</span>
               </div>
             </div>
 
