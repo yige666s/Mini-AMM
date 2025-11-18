@@ -1,10 +1,11 @@
-package main
+package services
 
 import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -12,18 +13,27 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	log "github.com/sirupsen/logrus"
+
+	util "mini-amm-bot/internal/util"
 )
 
 type TransactionService struct {
-	config      *Config
-	rpcClient   *RPCClient
+	config      *util.Config
+	rpcClient   *util.RPCClient
 	privateKey  *ecdsa.PrivateKey
 	fromAddress common.Address
 	contract    *MiniAMMContract
 }
 
-func NewTransactionService(config *Config, rpcClient *RPCClient) (*TransactionService, error) {
-	privateKey, err := crypto.HexToECDSA(config.PrivateKey)
+func NewTransactionService(config *util.Config, rpcClient *util.RPCClient) (*TransactionService, error) {
+	// 处理私钥：去掉空白与可能的 0x 前缀，减少 HexToECDSA 因格式问题失败的概率
+	pkStr := strings.TrimSpace(config.PrivateKey)
+	pkStr = strings.TrimPrefix(pkStr, "0x")
+	if len(pkStr) != 64 {
+		return nil, fmt.Errorf("私钥长度不正确，期望 64 个十六进制字符，实际长度 %d", len(pkStr))
+	}
+
+	privateKey, err := crypto.HexToECDSA(pkStr)
 	if err != nil {
 		return nil, fmt.Errorf("解析私钥失败: %w", err)
 	}

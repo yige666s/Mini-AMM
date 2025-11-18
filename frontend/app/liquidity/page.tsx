@@ -81,7 +81,7 @@ export default function LiquidityPage() {
                     value={amountA}
                     onChange={(e) => setAmountA(e.target.value)}
                     placeholder="0.0"
-                    className="bg-transparent text-2xl font-semibold outline-none w-full"
+                    className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="text-sm text-gray-500 mt-2">
                     余额: 0.00 TKA
@@ -103,7 +103,7 @@ export default function LiquidityPage() {
                     value={amountB}
                     onChange={(e) => setAmountB(e.target.value)}
                     placeholder="0.0"
-                    className="bg-transparent text-2xl font-semibold outline-none w-full"
+                    className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="text-sm text-gray-500 mt-2">
                     余额: 0.00 TKB
@@ -147,7 +147,7 @@ export default function LiquidityPage() {
                     value={lpAmount}
                     onChange={(e) => setLpAmount(e.target.value)}
                     placeholder="0.0"
-                    className="bg-transparent text-2xl font-semibold outline-none w-full"
+                    className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="text-sm text-gray-500 mt-2">
                     余额: 0.00 MINI-LP

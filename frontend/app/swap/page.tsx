@@ -64,7 +64,7 @@ export default function SwapPage() {
                     value={amountIn}
                     onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.0"
-                    className="bg-transparent text-2xl font-semibold outline-none w-full"
+                    className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="bg-white rounded-lg px-4 py-2 font-semibold">
                     {AtoB ? 'TKA' : 'TKB'}
@@ -98,7 +98,7 @@ export default function SwapPage() {
                     value={amountOut}
                     onChange={(e) => setAmountOut(e.target.value)}
                     placeholder="0.0"
-                    className="bg-transparent text-2xl font-semibold outline-none w-full"
+                    className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                     readOnly
                   />
                   <div className="bg-white rounded-lg px-4 py-2 font-semibold">

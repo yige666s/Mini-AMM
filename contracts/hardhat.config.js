@@ -32,7 +32,8 @@ module.exports = {
     apiKey: ETHERSCAN_API_KEY
   },
   paths: {
-    sources: "./",
+    // 修复：指向合约源文件的目录（项目中为 "contract" 目录）
+    sources: "./contract",
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts"

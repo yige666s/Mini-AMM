@@ -99,7 +99,7 @@ docker-compose logs -f bot
 
 ### 8️⃣ 访问前端
 
-打开浏览器访问：**http://localhost:3000**
+打开浏览器访问：**http://localhost:4000**
 
 ## 🎉 完成！
 
@@ -124,7 +124,7 @@ docker-compose ps
 - ✅ ipfs (端口 5001)
 - ✅ postgres (端口 5432)
 - ✅ bot (后台运行)
-- ✅ frontend (端口 3000)
+- ✅ frontend (端口 4000)
 
 ### 测试 GraphQL 查询
 

@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"context"
@@ -6,19 +6,21 @@ import (
 	"math/big"
 	"time"
 
+	util "mini-amm-bot/internal/util"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 )
 
 type CompoundService struct {
-	config     *Config
-	rpcClient  *RPCClient
-	txService  *TransactionService
-	contract   *MiniAMMContract
+	config    *util.Config
+	rpcClient *util.RPCClient
+	txService *TransactionService
+	contract  *MiniAMMContract
 }
 
-func NewCompoundService(config *Config, rpcClient *RPCClient, txService *TransactionService) (*CompoundService, error) {
+func NewCompoundService(config *util.Config, rpcClient *util.RPCClient, txService *TransactionService) (*CompoundService, error) {
 	contract, err := NewMiniAMMContract(common.HexToAddress(config.ContractAddress), rpcClient.GetClient())
 	if err != nil {
 		return nil, err

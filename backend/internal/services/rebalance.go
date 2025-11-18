@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"context"
@@ -6,19 +6,20 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	util "mini-amm-bot/internal/util"
+
 	log "github.com/sirupsen/logrus"
 )
 
 type RebalanceService struct {
-	config           *Config
-	rpcClient        *RPCClient
-	txService        *TransactionService
-	compoundService  *CompoundService
-	initialPrice     *big.Float
+	config          *util.Config
+	rpcClient       *util.RPCClient
+	txService       *TransactionService
+	compoundService *CompoundService
+	initialPrice    *big.Float
 }
 
-func NewRebalanceService(config *Config, rpcClient *RPCClient, txService *TransactionService, compoundService *CompoundService) (*RebalanceService, error) {
+func NewRebalanceService(config *util.Config, rpcClient *util.RPCClient, txService *TransactionService, compoundService *CompoundService) (*RebalanceService, error) {
 	return &RebalanceService{
 		config:          config,
 		rpcClient:       rpcClient,

@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Address } from "@graphprotocol/graph-ts";
+import { BigInt, BigDecimal, Address, ethereum } from "@graphprotocol/graph-ts";
 import {
   Swap as SwapEvent,
   Mint as MintEvent,
