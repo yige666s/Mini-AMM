@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  hardhat:
+    image: node:18-alpine
+    container_name: mini-amm-hardhat
+    working_dir: /app
+    volumes:
+      - ./contracts:/app
+    ports:
+      - "8545:8545"
+    command: sh -c "npm install && npx hardhat node"
+    networks:
+      - mini-amm-network
+
+  graph-node:
+    image: graphprotocol/graph-node:latest
+    container_name: mini-amm-graph-node
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
+    depends_on:
+      - ipfs
+      - postgres
+      - hardhat
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'localhost:http://hardhat:8545'
+      GRAPH_LOG: info
+    networks:
+      - mini-amm-network
+
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: mini-amm-ipfs
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data/ipfs:/data/ipfs
+    networks:
+      - mini-amm-network
+
+  postgres:
+    image: postgres:14
+    container_name: mini-amm-postgres
+    ports:
+      - "5432:5432"
+    command:
+      [
+        "postgres",
+        "-cshared_preload_libraries=pg_stat_statements"
+      ]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - mini-amm-network
+
+  bot:
+    image: golang:1.21-alpine
+    container_name: mini-amm-bot
+    working_dir: /app
+    volumes:
+      - ./bot:/app
+    depends_on:
+      - hardhat
+    environment:
+      RPC_ENDPOINT: http://hardhat:8545
+      CHAIN_ID: 31337
+      CONTRACT_ADDRESS: ${CONTRACT_ADDRESS:-0x0000000000000000000000000000000000000000}
+      PRIVATE_KEY: ${PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}
+      COMPOUND_INTERVAL: 300
+      REBALANCE_INTERVAL: 60
+      REBALANCE_THRESHOLD: 0.05
+      GAS_LIMIT: 300000
+      MAX_GAS_PRICE: 100
+      RETRY_ATTEMPTS: 3
+      RETRY_DELAY: 5
+    command: sh -c "apk add --no-cache git && go mod download && go run ."
+    networks:
+      - mini-amm-network
+    restart: unless-stopped
+
+  frontend:
+    image: node:18-alpine
+    container_name: mini-amm-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - hardhat
+      - graph-node
+    environment:
+      NEXT_PUBLIC_MINI_AMM_ADDRESS: ${NEXT_PUBLIC_MINI_AMM_ADDRESS:-}
+      NEXT_PUBLIC_TOKEN_A_ADDRESS: ${NEXT_PUBLIC_TOKEN_A_ADDRESS:-}
+      NEXT_PUBLIC_TOKEN_B_ADDRESS: ${NEXT_PUBLIC_TOKEN_B_ADDRESS:-}
+      NEXT_PUBLIC_SUBGRAPH_URL: http://localhost:8000/subgraphs/name/mini-amm-subgraph
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - mini-amm-network
+
+networks:
+  mini-amm-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  ipfs-data:

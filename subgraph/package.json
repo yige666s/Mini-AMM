@@ -1,0 +1,17 @@
+{
+  "name": "mini-amm-subgraph",
+  "version": "1.0.0",
+  "description": "Mini-AMM Subgraph",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node http://localhost:8020/ mini-amm-subgraph",
+    "create-local": "graph create --node http://localhost:8020/ mini-amm-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ mini-amm-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 mini-amm-subgraph"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.56.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}
