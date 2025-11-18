@@ -7,11 +7,13 @@ import { useWeb3 } from '@/lib/Web3Context'
 import { useContracts } from '@/lib/hooks/useContracts'
 import { useTokenBalance } from '@/lib/hooks/useTokenBalance'
 import { usePoolData } from '@/lib/hooks/usePoolData'
+import { useToast } from '@/lib/ToastContext'
 
 export default function LiquidityPage() {
   const { account, connect } = useWeb3()
   const { miniAMM, tokenA, tokenB } = useContracts()
   const { poolData } = usePoolData()
+  const { showToast } = useToast()
   const [tab, setTab] = useState<'add' | 'remove'>('add')
   const [amountA, setAmountA] = useState('')
   const [amountB, setAmountB] = useState('')
@@ -29,7 +31,7 @@ export default function LiquidityPage() {
     }
 
     if (!miniAMM || !tokenA || !tokenB || !amountA || !amountB) {
-      alert('请输入有效的数量')
+      showToast('请输入有效的数量', 'warning')
       return
     }
 
@@ -46,25 +48,28 @@ export default function LiquidityPage() {
       ])
 
       if (allowanceA < amountAWei) {
+        showToast('正在授权 Token A...', 'info')
         const approveTx = await tokenA.approve(await miniAMM.getAddress(), ethers.MaxUint256)
         await approveTx.wait()
       }
 
       if (allowanceB < amountBWei) {
+        showToast('正在授权 Token B...', 'info')
         const approveTx = await tokenB.approve(await miniAMM.getAddress(), ethers.MaxUint256)
         await approveTx.wait()
       }
 
+      showToast('正在添加流动性...', 'info')
       const addLiqTx = await miniAMM.addLiquidity(amountAWei, amountBWei)
       const receipt = await addLiqTx.wait()
 
       setTxHash(receipt.hash)
       setAmountA('')
       setAmountB('')
-      alert('添加流动性成功!')
+      showToast('添加流动性成功!', 'success')
     } catch (error: any) {
       console.error('添加流动性失败:', error)
-      alert(error.message || '添加流动性失败，请重试')
+      showToast(error.message || '添加流动性失败，请重试', 'error')
     } finally {
       setIsProcessing(false)
     }
@@ -77,7 +82,7 @@ export default function LiquidityPage() {
     }
 
     if (!miniAMM || !lpAmount) {
-      alert('请输入有效的 LP Token 数量')
+      showToast('请输入有效的 LP Token 数量', 'warning')
       return
     }
 
@@ -85,16 +90,17 @@ export default function LiquidityPage() {
       setIsProcessing(true)
       setTxHash('')
 
+      showToast('正在移除流动性...', 'info')
       const lpAmountWei = ethers.parseEther(lpAmount)
       const removeLiqTx = await miniAMM.removeLiquidity(lpAmountWei)
       const receipt = await removeLiqTx.wait()
 
       setTxHash(receipt.hash)
       setLpAmount('')
-      alert('移除流动性成功!')
+      showToast('移除流动性成功!', 'success')
     } catch (error: any) {
       console.error('移除流动性失败:', error)
-      alert(error.message || '移除流动性失败，请重试')
+      showToast(error.message || '移除流动性失败，请重试', 'error')
     } finally {
       setIsProcessing(false)
     }

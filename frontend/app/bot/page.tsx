@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
+import { useBotHistory } from '@/lib/hooks/useSubgraphData'
 
 export default function BotPage() {
   const [filter, setFilter] = useState<'all' | 'compound' | 'rebalance'>('all')
+  const { actions, loading } = useBotHistory(filter, 20)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -34,8 +36,10 @@ export default function BotPage() {
               <h3 className="text-sm font-medium text-gray-600">总复投次数</h3>
               <div className="text-2xl">♻️</div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">24</p>
-            <p className="text-sm text-gray-500 mt-2">累计复投价值 $120</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {loading ? '...' : actions.filter(a => a.actionType === 'COMPOUND').length}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">自动复投操作</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">
@@ -43,7 +47,9 @@ export default function BotPage() {
               <h3 className="text-sm font-medium text-gray-600">总再平衡次数</h3>
               <div className="text-2xl">⚖️</div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">5</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {loading ? '...' : actions.filter(a => a.actionType === 'REBALANCE').length}
+            </p>
             <p className="text-sm text-gray-500 mt-2">保持价格稳定</p>
           </div>
         </div>
@@ -108,93 +114,71 @@ export default function BotPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 border rounded-lg hover:bg-gray-50 transition">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold">♻️</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold">手续费复投</p>
-                    <p className="text-sm text-gray-500">2 分钟前</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                  成功
-                </span>
-              </div>
-              <div className="ml-13 space-y-1 text-sm">
-                <p className="text-gray-600">Token A: 5.2 TKA</p>
-                <p className="text-gray-600">Token B: 5.2 TKB</p>
-                <p className="text-gray-600">
-                  交易哈希:{' '}
-                  <a href="#" className="text-indigo-600 hover:underline">
-                    0x1234...5678
-                  </a>
-                </p>
-              </div>
-            </div>
+            {loading ? (
+              <div className="text-center py-8 text-gray-500">加载中...</div>
+            ) : actions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">暂无操作记录</div>
+            ) : (
+              actions.map((action) => {
+                const isCompound = action.actionType === 'COMPOUND'
+                const timeAgo = Math.floor((Date.now() - parseInt(action.timestamp) * 1000) / 60000)
+                const timeText = timeAgo < 60 
+                  ? `${timeAgo} 分钟前` 
+                  : timeAgo < 1440 
+                    ? `${Math.floor(timeAgo / 60)} 小时前`
+                    : `${Math.floor(timeAgo / 1440)} 天前`
 
-            <div className="p-4 border rounded-lg hover:bg-gray-50 transition">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold">⚖️</span>
+                return (
+                  <div key={action.id} className="p-4 border rounded-lg hover:bg-gray-50 transition">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          isCompound ? 'bg-green-100' : 'bg-blue-100'
+                        }`}>
+                          <span className={`font-bold ${
+                            isCompound ? 'text-green-600' : 'text-blue-600'
+                          }`}>
+                            {isCompound ? '♻️' : '⚖️'}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-semibold">
+                            {isCompound ? '手续费复投' : '价格再平衡'}
+                          </p>
+                          <p className="text-sm text-gray-500">{timeText}</p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                        成功
+                      </span>
+                    </div>
+                    <div className="ml-13 space-y-1 text-sm">
+                      {parseFloat(action.amountA) > 0 && (
+                        <p className="text-gray-600">
+                          Token A: {parseFloat(action.amountA).toFixed(4)} TKA
+                        </p>
+                      )}
+                      {parseFloat(action.amountB) > 0 && (
+                        <p className="text-gray-600">
+                          Token B: {parseFloat(action.amountB).toFixed(4)} TKB
+                        </p>
+                      )}
+                      <p className="text-gray-600">
+                        交易哈希:{' '}
+                        <a 
+                          href={`https://etherscan.io/tx/${action.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-600 hover:underline font-mono"
+                        >
+                          {action.txHash.slice(0, 10)}...{action.txHash.slice(-8)}
+                        </a>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold">价格再平衡</p>
-                    <p className="text-sm text-gray-500">15 分钟前</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                  成功
-                </span>
-              </div>
-              <div className="ml-13 space-y-1 text-sm">
-                <p className="text-gray-600">方向: TKA → TKB</p>
-                <p className="text-gray-600">数量: 100 TKA</p>
-                <p className="text-gray-600">价格偏差: 6.2%</p>
-                <p className="text-gray-600">
-                  交易哈希:{' '}
-                  <a href="#" className="text-indigo-600 hover:underline">
-                    0xabcd...ef01
-                  </a>
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 border rounded-lg hover:bg-gray-50 transition">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold">♻️</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold">手续费复投</p>
-                    <p className="text-sm text-gray-500">20 分钟前</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                  成功
-                </span>
-              </div>
-              <div className="ml-13 space-y-1 text-sm">
-                <p className="text-gray-600">Token A: 4.8 TKA</p>
-                <p className="text-gray-600">Token B: 4.8 TKB</p>
-                <p className="text-gray-600">
-                  交易哈希:{' '}
-                  <a href="#" className="text-indigo-600 hover:underline">
-                    0x2345...6789
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-center">
-            <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
-              加载更多
-            </button>
+                )
+              })
+            )}
           </div>
         </div>
 

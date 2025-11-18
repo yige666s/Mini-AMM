@@ -19,6 +19,16 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
           </div>
           <div className="flex items-center gap-6">
             <Link 
+              href="/" 
+              className={`${
+                currentPath === '/' 
+                  ? 'text-indigo-600 font-semibold' 
+                  : 'text-gray-700 hover:text-indigo-600'
+              } transition-colors`}
+            >
+              首页
+            </Link>
+            <Link 
               href="/swap" 
               className={`${
                 currentPath === '/swap' 
