@@ -1,0 +1,110 @@
+type Pool @entity {
+  id: ID!
+  tokenA: Bytes!
+  tokenB: Bytes!
+  reserveA: BigInt!
+  reserveB: BigInt!
+  price: BigDecimal!
+  totalLiquidity: BigInt!
+  feeA: BigInt!
+  feeB: BigInt!
+  swapCount: BigInt!
+  updatedAt: BigInt!
+}
+
+type Swap @entity {
+  id: ID!
+  pool: Pool!
+  user: Bytes!
+  amountIn: BigInt!
+  amountOut: BigInt!
+  AtoB: Boolean!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Mint @entity {
+  id: ID!
+  pool: Pool!
+  provider: Bytes!
+  amountA: BigInt!
+  amountB: BigInt!
+  liquidity: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Burn @entity {
+  id: ID!
+  pool: Pool!
+  provider: Bytes!
+  amountA: BigInt!
+  amountB: BigInt!
+  liquidity: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FeeCollection @entity {
+  id: ID!
+  pool: Pool!
+  feeA: BigInt!
+  feeB: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RebalanceAction @entity {
+  id: ID!
+  pool: Pool!
+  amountIn: BigInt!
+  amountOut: BigInt!
+  AtoB: Boolean!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type BotAction @entity {
+  id: ID!
+  pool: Pool!
+  action: String!
+  amountA: BigInt
+  amountB: BigInt
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type User @entity {
+  id: ID!
+  address: Bytes!
+  liquidityBalance: BigInt!
+  swapCount: BigInt!
+  totalValueAdded: BigInt!
+  totalValueRemoved: BigInt!
+}
+
+type PoolDayData @entity {
+  id: ID!
+  pool: Pool!
+  date: Int!
+  volumeA: BigInt!
+  volumeB: BigInt!
+  feesCollectedA: BigInt!
+  feesCollectedB: BigInt!
+  swapCount: BigInt!
+  reserveA: BigInt!
+  reserveB: BigInt!
+}
+
+type PoolHourData @entity {
+  id: ID!
+  pool: Pool!
+  hour: Int!
+  volumeA: BigInt!
+  volumeB: BigInt!
+  feesCollectedA: BigInt!
+  feesCollectedB: BigInt!
+  swapCount: BigInt!
+  reserveA: BigInt!
+  reserveB: BigInt!
+}
