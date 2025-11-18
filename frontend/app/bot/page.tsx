@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
-import { useBotHistory } from '@/lib/hooks/useSubgraphData'
+import { useBotActions, useBotStats } from '@/lib/hooks/useBotActions'
 
 export default function BotPage() {
   const [filter, setFilter] = useState<'all' | 'compound' | 'rebalance'>('all')
-  const { actions, loading } = useBotHistory(filter, 20)
+  const { actions, loading } = useBotActions(filter, 20)
+  const { stats, loading: statsLoading } = useBotStats()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -28,7 +29,18 @@ export default function BotPage() {
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               <p className="text-lg font-semibold text-green-600">运行中</p>
             </div>
-            <p className="text-sm text-gray-500 mt-2">最后活动: 2 分钟前</p>
+            <p className="text-sm text-gray-500 mt-2">
+              最后活动: {statsLoading || !stats.latestAction ? '...' : 
+                (() => {
+                  const timeAgo = Math.floor((Date.now() - new Date(stats.latestAction.timestamp).getTime()) / 60000)
+                  return timeAgo < 60 
+                    ? `${timeAgo} 分钟前` 
+                    : timeAgo < 1440 
+                      ? `${Math.floor(timeAgo / 60)} 小时前`
+                      : `${Math.floor(timeAgo / 1440)} 天前`
+                })()
+              }
+            </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">
@@ -37,7 +49,7 @@ export default function BotPage() {
               <div className="text-2xl">♻️</div>
             </div>
             <p className="text-3xl font-bold text-gray-900">
-              {loading ? '...' : actions.filter(a => a.actionType === 'COMPOUND').length}
+              {statsLoading ? '...' : stats.compoundCount}
             </p>
             <p className="text-sm text-gray-500 mt-2">自动复投操作</p>
           </div>
@@ -48,7 +60,7 @@ export default function BotPage() {
               <div className="text-2xl">⚖️</div>
             </div>
             <p className="text-3xl font-bold text-gray-900">
-              {loading ? '...' : actions.filter(a => a.actionType === 'REBALANCE').length}
+              {statsLoading ? '...' : stats.rebalanceCount}
             </p>
             <p className="text-sm text-gray-500 mt-2">保持价格稳定</p>
           </div>
@@ -121,12 +133,16 @@ export default function BotPage() {
             ) : (
               actions.map((action) => {
                 const isCompound = action.actionType === 'COMPOUND'
-                const timeAgo = Math.floor((Date.now() - parseInt(action.timestamp) * 1000) / 60000)
+                const timeAgo = Math.floor((Date.now() - new Date(action.timestamp).getTime()) / 60000)
                 const timeText = timeAgo < 60 
                   ? `${timeAgo} 分钟前` 
                   : timeAgo < 1440 
                     ? `${Math.floor(timeAgo / 60)} 小时前`
                     : `${Math.floor(timeAgo / 1440)} 天前`
+                
+                const isSuccess = action.status === 'success'
+                const amountANum = parseFloat(action.amountA) / 1e18
+                const amountBNum = parseFloat(action.amountB) / 1e18
 
                 return (
                   <div key={action.id} className="p-4 border rounded-lg hover:bg-gray-50 transition">
@@ -148,19 +164,33 @@ export default function BotPage() {
                           <p className="text-sm text-gray-500">{timeText}</p>
                         </div>
                       </div>
-                      <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                        成功
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                        isSuccess 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {isSuccess ? '成功' : '失败'}
                       </span>
                     </div>
                     <div className="ml-13 space-y-1 text-sm">
-                      {parseFloat(action.amountA) > 0 && (
+                      {amountANum > 0 && (
                         <p className="text-gray-600">
-                          Token A: {parseFloat(action.amountA).toFixed(4)} TKA
+                          Token A: {amountANum.toFixed(4)} TKA
                         </p>
                       )}
-                      {parseFloat(action.amountB) > 0 && (
+                      {amountBNum > 0 && (
                         <p className="text-gray-600">
-                          Token B: {parseFloat(action.amountB).toFixed(4)} TKB
+                          Token B: {amountBNum.toFixed(4)} TKB
+                        </p>
+                      )}
+                      {action.direction && (
+                        <p className="text-gray-600">
+                          方向: {action.direction === 'AtoB' ? 'TKA → TKB' : 'TKB → TKA'}
+                        </p>
+                      )}
+                      {action.gasUsed && (
+                        <p className="text-gray-600">
+                          Gas 使用: {action.gasUsed.toLocaleString()}
                         </p>
                       )}
                       <p className="text-gray-600">

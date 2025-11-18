@@ -8,8 +8,6 @@ interface Swap {
   id: string
   timestamp: string
   user: string
-  tokenIn: string
-  tokenOut: string
   amountIn: string
   amountOut: string
   AtoB: boolean
@@ -41,8 +39,6 @@ export function useSwapHistory(limit: number = 20) {
               id
               timestamp
               user
-              tokenIn
-              tokenOut
               amountIn
               amountOut
               AtoB

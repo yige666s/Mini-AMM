@@ -267,10 +267,10 @@ export default function PoolPage() {
                         </span>
                       </td>
                       <td className="py-3 text-gray-700">
-                        {parseFloat(swap.amountIn).toFixed(4)} {swap.AtoB ? 'TKA' : 'TKB'}
+                        {(parseFloat(swap.amountIn) / 1e18).toFixed(4)} {swap.AtoB ? 'TKA' : 'TKB'}
                       </td>
                       <td className="py-3 text-gray-700">
-                        {parseFloat(swap.amountOut).toFixed(4)} {swap.AtoB ? 'TKB' : 'TKA'}
+                        {(parseFloat(swap.amountOut) / 1e18).toFixed(4)} {swap.AtoB ? 'TKB' : 'TKA'}
                       </td>
                       <td className="py-3 text-gray-700 font-mono text-xs">
                         {swap.user.slice(0, 6)}...{swap.user.slice(-4)}
