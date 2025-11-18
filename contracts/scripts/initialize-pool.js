@@ -1,5 +1,6 @@
 const hre = require("hardhat");
-const { ethers } = require("hardhat");
+require("@nomicfoundation/hardhat-ethers");
+const ethers = hre.ethers;
 
 async function main() {
   console.log("\n=================================");
@@ -8,10 +9,10 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
   console.log("使用账户:", deployer.address);
-  console.log("账户余额:", ethers.utils.formatEther(await deployer.getBalance()), "ETH\n");
+  console.log("账户余额:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH\n");
 
   // 从部署文件读取合约地址
-  const deploymentPath = "./deployments/deployed-contracts.json";
+  const deploymentPath = "../deployments/localhost-latest.json";
   let addresses;
   
   try {
@@ -23,29 +24,29 @@ async function main() {
   }
 
   console.log("合约地址:");
-  console.log("- TokenA:", addresses.tokenA);
-  console.log("- TokenB:", addresses.tokenB);
-  console.log("- AMM:", addresses.miniAMM);
+  console.log("- TokenA:", addresses.contracts.tokenA);
+  console.log("- TokenB:", addresses.contracts.tokenB);
+  console.log("- AMM:", addresses.contracts.miniAMM);
   console.log("");
 
   // 连接到合约
-  const TokenA = await ethers.getContractAt("contracts/contract/TestToken.sol:TestToken", addresses.tokenA);
-  const TokenB = await ethers.getContractAt("contracts/contract/TestToken.sol:TestToken", addresses.tokenB);
-  const AMM = await ethers.getContractAt("contracts/contract/MiniAMM.sol:MiniAMM", addresses.miniAMM);
+  const TokenA = await ethers.getContractAt("MockERC20", addresses.contracts.tokenA);
+  const TokenB = await ethers.getContractAt("MockERC20", addresses.contracts.tokenB);
+  const AMM = await ethers.getContractAt("MiniAMM", addresses.contracts.miniAMM);
 
   // 步骤 1: 检查当前余额
   console.log("步骤 1: 检查当前代币余额");
   console.log("-".repeat(40));
   const balanceA = await TokenA.balanceOf(deployer.address);
   const balanceB = await TokenB.balanceOf(deployer.address);
-  console.log("TKA 余额:", ethers.utils.formatEther(balanceA));
-  console.log("TKB 余额:", ethers.utils.formatEther(balanceB));
+  console.log("TKA 余额:", ethers.formatEther(balanceA));
+  console.log("TKB 余额:", ethers.formatEther(balanceB));
   console.log("");
 
   // 步骤 2: 铸造代币（如果余额不足）
-  const requiredAmount = ethers.utils.parseEther("100000");
+  const requiredAmount = ethers.parseEther("100000");
   
-  if (balanceA.lt(requiredAmount)) {
+  if (balanceA < requiredAmount) {
     console.log("步骤 2a: 铸造 TKA 代币");
     console.log("-".repeat(40));
     const mintTx = await TokenA.mint(deployer.address, requiredAmount);
@@ -57,7 +58,7 @@ async function main() {
     console.log("✓ TKA 余额充足，跳过铸造\n");
   }
 
-  if (balanceB.lt(requiredAmount)) {
+  if (balanceB < requiredAmount) {
     console.log("步骤 2b: 铸造 TKB 代币");
     console.log("-".repeat(40));
     const mintTx = await TokenB.mint(deployer.address, requiredAmount);
@@ -73,15 +74,15 @@ async function main() {
   console.log("步骤 3: 批准 AMM 合约使用代币");
   console.log("-".repeat(40));
   
-  const approveAmount = ethers.utils.parseEther("50000");
+  const approveAmount = ethers.parseEther("50000");
   
   console.log("批准 TKA...");
-  const approveTxA = await TokenA.approve(addresses.miniAMM, approveAmount);
+  const approveTxA = await TokenA.approve(addresses.contracts.miniAMM, approveAmount);
   await approveTxA.wait();
   console.log("✓ TKA 已批准");
   
   console.log("批准 TKB...");
-  const approveTxB = await TokenB.approve(addresses.miniAMM, approveAmount);
+  const approveTxB = await TokenB.approve(addresses.contracts.miniAMM, approveAmount);
   await approveTxB.wait();
   console.log("✓ TKB 已批准");
   console.log("");
@@ -90,29 +91,25 @@ async function main() {
   console.log("步骤 4: 检查当前池子状态");
   console.log("-".repeat(40));
   const reserves = await AMM.getReserves();
-  console.log("当前 TKA 储备:", ethers.utils.formatEther(reserves[0]));
-  console.log("当前 TKB 储备:", ethers.utils.formatEther(reserves[1]));
+  console.log("当前 TKA 储备:", ethers.formatEther(reserves[0]));
+  console.log("当前 TKB 储备:", ethers.formatEther(reserves[1]));
   console.log("");
 
   // 步骤 5: 添加初始流动性
-  const liquidityAmountA = ethers.utils.parseEther("10000");
-  const liquidityAmountB = ethers.utils.parseEther("10000");
+  const liquidityAmountA = ethers.parseEther("10000");
+  const liquidityAmountB = ethers.parseEther("10000");
 
   console.log("步骤 5: 添加初始流动性");
   console.log("-".repeat(40));
   console.log("将添加:");
-  console.log("- TKA:", ethers.utils.formatEther(liquidityAmountA));
-  console.log("- TKB:", ethers.utils.formatEther(liquidityAmountB));
+  console.log("- TKA:", ethers.formatEther(liquidityAmountA));
+  console.log("- TKB:", ethers.formatEther(liquidityAmountB));
   console.log("");
 
-  const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 分钟后
-  
   console.log("正在添加流动性...");
   const addLiquidityTx = await AMM.addLiquidity(
     liquidityAmountA,
-    liquidityAmountB,
-    0, // minLiquidity - 初始化时设为 0
-    deadline
+    liquidityAmountB
   );
   
   console.log("等待交易确认...");
@@ -128,19 +125,19 @@ async function main() {
   
   const newReserves = await AMM.getReserves();
   console.log("新的储备量:");
-  console.log("- TKA 储备:", ethers.utils.formatEther(newReserves[0]));
-  console.log("- TKB 储备:", ethers.utils.formatEther(newReserves[1]));
+  console.log("- TKA 储备:", ethers.formatEther(newReserves[0]));
+  console.log("- TKB 储备:", ethers.formatEther(newReserves[1]));
   
   const lpBalance = await AMM.balanceOf(deployer.address);
-  console.log("- LP Token 余额:", ethers.utils.formatEther(lpBalance));
+  console.log("- LP Token 余额:", ethers.formatEther(lpBalance));
   
   const totalSupply = await AMM.totalSupply();
-  console.log("- 总 LP 供应:", ethers.utils.formatEther(totalSupply));
+  console.log("- 总 LP 供应:", ethers.formatEther(totalSupply));
   
   // 计算价格
-  if (newReserves[0].gt(0) && newReserves[1].gt(0)) {
-    const price = parseFloat(ethers.utils.formatEther(newReserves[1])) / 
-                  parseFloat(ethers.utils.formatEther(newReserves[0]));
+  if (newReserves[0] > 0n && newReserves[1] > 0n) {
+    const price = parseFloat(ethers.formatEther(newReserves[1])) / 
+                  parseFloat(ethers.formatEther(newReserves[0]));
     console.log("- 当前价格: 1 TKA =", price.toFixed(3), "TKB");
   }
   
