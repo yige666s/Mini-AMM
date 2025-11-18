@@ -3,10 +3,14 @@
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
 import { usePoolData } from '@/lib/hooks/usePoolData'
+import { useSwapHistory, usePriceHistory } from '@/lib/hooks/useSubgraphData'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function PoolPage() {
-  const [chartDuration, setChartDuration] = useState('24H')
+  const [chartDuration, setChartDuration] = useState<'24H' | '7D' | '30D'>('24H')
   const { poolData, loading } = usePoolData()
+  const { swaps, loading: swapsLoading } = useSwapHistory(10)
+  const { priceData, loading: priceLoading } = usePriceHistory(chartDuration)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -173,8 +177,46 @@ export default function PoolPage() {
               </button>
             </div>
           </div>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <p className="text-gray-400">价格图表 - {chartDuration}</p>
+          <div className="h-64">
+            {priceLoading ? (
+              <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                <p className="text-gray-400">加载中...</p>
+              </div>
+            ) : priceData.length === 0 ? (
+              <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                <p className="text-gray-400">暂无价格数据</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={priceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="timestamp" 
+                    tickFormatter={(timestamp) => {
+                      const date = new Date(timestamp)
+                      return chartDuration === '24H' 
+                        ? date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                        : date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+                    }}
+                  />
+                  <YAxis 
+                    domain={['auto', 'auto']}
+                    tickFormatter={(value) => value.toFixed(4)}
+                  />
+                  <Tooltip 
+                    labelFormatter={(timestamp) => new Date(timestamp).toLocaleString('zh-CN')}
+                    formatter={(value: number) => [value.toFixed(4), 'TKB/TKA']}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="price" 
+                    stroke="#4f46e5" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -192,11 +234,50 @@ export default function PoolPage() {
                 </tr>
               </thead>
               <tbody className="text-sm">
-                <tr className="border-b">
-                  <td className="py-3 text-gray-500" colSpan={5}>
-                    <div className="text-center py-8">暂无交易记录</div>
-                  </td>
-                </tr>
+                {swapsLoading ? (
+                  <tr className="border-b">
+                    <td className="py-3 text-gray-500 text-center" colSpan={5}>
+                      加载中...
+                    </td>
+                  </tr>
+                ) : swaps.length === 0 ? (
+                  <tr className="border-b">
+                    <td className="py-3 text-gray-500 text-center" colSpan={5}>
+                      暂无交易记录
+                    </td>
+                  </tr>
+                ) : (
+                  swaps.map((swap) => (
+                    <tr key={swap.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 text-gray-700">
+                        {new Date(parseInt(swap.timestamp) * 1000).toLocaleString('zh-CN', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </td>
+                      <td className="py-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          swap.AtoB 
+                            ? 'bg-indigo-100 text-indigo-800' 
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {swap.AtoB ? 'TKA → TKB' : 'TKB → TKA'}
+                        </span>
+                      </td>
+                      <td className="py-3 text-gray-700">
+                        {parseFloat(swap.amountIn).toFixed(4)} {swap.AtoB ? 'TKA' : 'TKB'}
+                      </td>
+                      <td className="py-3 text-gray-700">
+                        {parseFloat(swap.amountOut).toFixed(4)} {swap.AtoB ? 'TKB' : 'TKA'}
+                      </td>
+                      <td className="py-3 text-gray-700 font-mono text-xs">
+                        {swap.user.slice(0, 6)}...{swap.user.slice(-4)}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

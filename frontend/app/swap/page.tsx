@@ -7,11 +7,13 @@ import { useWeb3 } from '@/lib/Web3Context'
 import { useContracts } from '@/lib/hooks/useContracts'
 import { useTokenBalance } from '@/lib/hooks/useTokenBalance'
 import { usePoolData } from '@/lib/hooks/usePoolData'
+import { useToast } from '@/lib/ToastContext'
 
 export default function SwapPage() {
   const { account, connect } = useWeb3()
   const { miniAMM, tokenA, tokenB } = useContracts()
   const { poolData } = usePoolData()
+  const { showToast } = useToast()
   const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
   const [AtoB, setAtoB] = useState(true)
@@ -49,7 +51,7 @@ export default function SwapPage() {
     }
 
     if (!miniAMM || !tokenA || !tokenB || !amountIn || parseFloat(amountIn) <= 0) {
-      alert('请输入有效的交换数量')
+      showToast('请输入有效的交换数量', 'warning')
       return
     }
 
@@ -63,20 +65,23 @@ export default function SwapPage() {
       const allowance = await tokenToApprove.allowance(account, await miniAMM.getAddress())
       
       if (allowance < amountInWei) {
+        showToast('正在授权代币...', 'info')
         const approveTx = await tokenToApprove.approve(await miniAMM.getAddress(), ethers.MaxUint256)
         await approveTx.wait()
+        showToast('代币授权成功', 'success')
       }
 
+      showToast('正在执行交换...', 'info')
       const swapTx = await miniAMM.swap(amountInWei, AtoB)
       const receipt = await swapTx.wait()
       
       setTxHash(receipt.hash)
       setAmountIn('')
       setAmountOut('')
-      alert('交换成功!')
+      showToast('交换成功!', 'success')
     } catch (error: any) {
       console.error('交换失败:', error)
-      alert(error.message || '交换失败，请重试')
+      showToast(error.message || '交换失败，请重试', 'error')
     } finally {
       setIsSwapping(false)
     }
