@@ -1,330 +1,223 @@
-# Mini-AMM 前端应用
+# Mini-AMM Frontend
 
-基于 Next.js 14 的现代化 Web3 前端应用。
+基于 React、Next.js 13+ 和 ethers.js v6 构建的去中心化交易前端。
 
 ## 技术栈
 
-- **框架**: Next.js 14 (App Router)
-- **React**: React 18
-- **Web3 库**: Wagmi + Viem
-- **钱包**: RainbowKit
-- **UI**: TailwindCSS
-- **状态管理**: TanStack Query
-- **图表**: Recharts
-- **GraphQL**: urql
-
-## 功能页面
-
-### 首页 (/)
-- 项目介绍
-- 功能概览
-- 快速导航
-
-### 交换页面 (/swap)
-- 代币交换界面
-- 实时价格预估
-- 滑点设置
-- 交易历史
-
-### 流动性页面 (/liquidity)
-- 添加流动性
-- 移除流动性
-- LP Token 管理
-- 收益展示
-
-### 池子页面 (/pool)
-- TVL 统计
-- 交易量分析
-- 储备量展示
-- 价格图表
-- 流动性提供者信息
-
-### Bot 页面 (/bot)
-- Bot 状态监控
-- 操作历史记录
-- 配置信息
-- 统计数据
-
-## 安装
-
-```bash
-npm install
-```
-
-## 配置
-
-创建 `.env.local` 文件：
-
-```env
-NEXT_PUBLIC_MINI_AMM_ADDRESS=0x...
-NEXT_PUBLIC_TOKEN_A_ADDRESS=0x...
-NEXT_PUBLIC_TOKEN_B_ADDRESS=0x...
-NEXT_PUBLIC_SUBGRAPH_URL=http://localhost:8000/subgraphs/name/mini-amm-subgraph
-```
-
-## 开发
-
-```bash
-npm run dev
-```
-
-访问: http://localhost:3000
-
-## 构建
-
-```bash
-npm run build
-```
-
-## 启动生产服务
-
-```bash
-npm start
-```
+- **React 18** - UI 框架
+- **Next.js 14** - React 应用框架（App Router）
+- **ethers.js v6** - 以太坊 JavaScript 库
+- **TypeScript** - 类型安全
+- **Tailwind CSS** - 样式框架
+- **urql + GraphQL** - The Graph 数据查询
 
 ## 项目结构
 
 ```
 frontend/
-├── app/                    # App Router 页面
-│   ├── layout.tsx         # 根布局
-│   ├── page.tsx           # 首页
-│   ├── providers.tsx      # Provider 配置
-│   ├── globals.css        # 全局样式
-│   ├── swap/              # 交换页面
-│   ├── liquidity/         # 流动性页面
-│   ├── pool/              # 池子页面
-│   └── bot/               # Bot 页面
-├── components/            # React 组件
-├── lib/                   # 工具函数和配置
-│   ├── wagmi.ts          # Wagmi 配置
-│   └── contracts.ts      # 合约 ABI 和地址
-├── public/               # 静态资源
-├── package.json
-├── tsconfig.json
-└── tailwind.config.js
+├── app/                      # Next.js App Router 页面
+│   ├── components/          # React 组件
+│   │   ├── Navbar.tsx      # 导航栏
+│   │   └── ConnectButton.tsx # 钱包连接按钮
+│   ├── swap/               # 交换页面
+│   ├── liquidity/          # 流动性管理页面
+│   ├── pool/               # 池子信息页面
+│   ├── bot/                # Bot 记录页面
+│   ├── layout.tsx          # 根布局
+│   ├── page.tsx            # 首页
+│   ├── providers.tsx       # Context Providers
+│   └── globals.css         # 全局样式
+├── lib/                     # 工具库
+│   ├── Web3Context.tsx     # Web3 状态管理
+│   ├── contracts.ts        # 合约 ABI 和地址
+│   ├── hooks/              # 自定义 Hooks
+│   │   ├── useContracts.ts    # 合约实例 Hook
+│   │   ├── useTokenBalance.ts # 代币余额 Hook
+│   │   └── usePoolData.ts     # 池子数据 Hook
+│   └── types/              # TypeScript 类型定义
+│       └── ethereum.d.ts   # window.ethereum 类型
+└── public/                  # 静态资源
 ```
 
-## 核心库使用
+## 主要功能
 
-### Wagmi - Web3 React Hooks
+### 1. 钱包连接
+- 通过 MetaMask 连接钱包
+- 自动检测网络切换和账户变更
+- 显示账户信息和余额
+
+### 2. 代币交换
+- 支持 TKA ⇄ TKB 交换
+- 实时计算输出数量
+- 显示当前价格和滑点
+- 自动处理代币授权
+
+### 3. 流动性管理
+- 添加流动性获得 LP Token
+- 移除流动性取回代币
+- 实时显示池子份额
+- 快捷选择移除比例（25%、50%、75%、100%）
+
+### 4. 池子信息
+- 实时显示 TVL
+- 查看储备量和价格
+- 累积手续费统计
+- LP Token 供应量
+
+### 5. Bot 记录
+- 查看自动复投记录
+- 查看再平衡记录
+- Bot 运行状态监控
+- 历史操作记录
+
+## 快速开始
+
+### 前置要求
+
+- Node.js 18+
+- npm 或 yarn
+- MetaMask 浏览器扩展
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 配置环境变量
+
+创建 `.env.local` 文件：
+
+```bash
+NEXT_PUBLIC_MINI_AMM_ADDRESS=0x...
+NEXT_PUBLIC_TOKEN_A_ADDRESS=0x...
+NEXT_PUBLIC_TOKEN_B_ADDRESS=0x...
+NEXT_PUBLIC_SUBGRAPH_URL=http://localhost:8000/subgraphs/name/mini-amm
+```
+
+### 开发模式
+
+```bash
+npm run dev
+```
+
+访问 http://localhost:3000
+
+### 生产构建
+
+```bash
+npm run build
+npm start
+```
+
+## Web3 集成
+
+### 使用 Web3Context
 
 ```typescript
-import { useReadContract, useWriteContract } from 'wagmi'
+import { useWeb3 } from '@/lib/Web3Context'
 
-// 读取合约数据
-const { data: reserves } = useReadContract({
-  address: CONTRACTS.miniAMM,
-  abi: MINI_AMM_ABI,
-  functionName: 'getReserves'
-})
-
-// 写入合约
-const { writeContract } = useWriteContract()
-await writeContract({
-  address: CONTRACTS.miniAMM,
-  abi: MINI_AMM_ABI,
-  functionName: 'swap',
-  args: [amountIn, true]
-})
-```
-
-### RainbowKit - 钱包连接
-
-```typescript
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-
-<ConnectButton />
-```
-
-### TanStack Query - 数据缓存
-
-```typescript
-import { useQuery } from '@tanstack/react-query'
-
-const { data, isLoading } = useQuery({
-  queryKey: ['pool'],
-  queryFn: fetchPoolData
-})
-```
-
-## 钱包配置
-
-支持的钱包:
-- MetaMask
-- WalletConnect
-- Coinbase Wallet
-- Rainbow Wallet
-
-### 添加本地网络到 MetaMask
-
-- Network Name: Hardhat Local
-- RPC URL: http://localhost:8545
-- Chain ID: 31337
-- Currency Symbol: ETH
-
-### 导入测试账户
-
-Hardhat 账户 #0:
-```
-私钥: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-```
-
-## 样式系统
-
-使用 TailwindCSS 实用优先的 CSS 框架。
-
-### 颜色系统
-
-```javascript
-// tailwind.config.js
-colors: {
-  primary: {
-    500: '#0ea5e9',  // 主色
-    600: '#0284c7',  // hover 色
+function MyComponent() {
+  const { account, connect, disconnect, signer } = useWeb3()
+  
+  if (!account) {
+    return <button onClick={connect}>连接钱包</button>
   }
+  
+  return <div>已连接: {account}</div>
 }
 ```
 
-### 响应式设计
-
-```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-  {/* 内容 */}
-</div>
-```
-
-## GraphQL 查询
-
-### 查询池子数据
+### 使用合约 Hooks
 
 ```typescript
-const POOL_QUERY = gql`
-  query {
-    pool(id: "1") {
-      reserveA
-      reserveB
-      price
-      totalLiquidity
-    }
-  }
-`
+import { useContracts } from '@/lib/hooks/useContracts'
+import { useTokenBalance } from '@/lib/hooks/useTokenBalance'
+import { usePoolData } from '@/lib/hooks/usePoolData'
+
+function MyComponent() {
+  const { miniAMM, tokenA, tokenB } = useContracts()
+  const { balance } = useTokenBalance('A')
+  const { poolData } = usePoolData()
+  
+  // 使用合约实例进行交易
+  // ...
+}
 ```
 
-### 查询交换历史
+### 合约交互示例
 
 ```typescript
-const SWAPS_QUERY = gql`
-  query {
-    swaps(first: 10, orderBy: timestamp, orderDirection: desc) {
-      user
-      amountIn
-      amountOut
-      timestamp
-    }
-  }
-`
+// Swap
+const amountInWei = ethers.parseEther(amountIn)
+const swapTx = await miniAMM.swap(amountInWei, true)
+await swapTx.wait()
+
+// Add Liquidity
+const amountAWei = ethers.parseEther(amountA)
+const amountBWei = ethers.parseEther(amountB)
+const addLiqTx = await miniAMM.addLiquidity(amountAWei, amountBWei)
+await addLiqTx.wait()
+
+// Remove Liquidity
+const lpAmountWei = ethers.parseEther(lpAmount)
+const removeLiqTx = await miniAMM.removeLiquidity(lpAmountWei)
+await removeLiqTx.wait()
 ```
 
-## 性能优化
+## 支持的网络
 
-### 代码分割
+- **Ethereum Mainnet** (chainId: 1)
+- **Sepolia Testnet** (chainId: 11155111)
+- **Hardhat Local** (chainId: 31337)
 
-使用 Next.js 动态导入:
+## 开发指南
 
-```typescript
-import dynamic from 'next/dynamic'
+### 添加新页面
 
-const Chart = dynamic(() => import('@/components/Chart'), {
-  ssr: false
-})
-```
+1. 在 `app/` 目录创建新文件夹
+2. 添加 `page.tsx` 文件
+3. 使用 `'use client'` 指令（如果需要客户端交互）
+4. 在 Navbar 组件添加导航链接
 
-### 图片优化
+### 添加新的合约交互
 
-```typescript
-import Image from 'next/image'
+1. 在 `lib/contracts.ts` 添加 ABI
+2. 在 `lib/hooks/` 创建自定义 Hook
+3. 在组件中使用 Hook
 
-<Image
-  src="/logo.png"
-  alt="Logo"
-  width={100}
-  height={100}
-/>
-```
+### 样式指南
 
-### React Query 缓存
+- 使用 Tailwind CSS 类
+- 主色调：`indigo-600`
+- 次色调：`purple-600`
+- 保持中文用户界面
+- 确保数字有良好对比度
 
-```typescript
-const { data } = useQuery({
-  queryKey: ['reserves'],
-  queryFn: fetchReserves,
-  staleTime: 5000,  // 5 秒内不重新请求
-  refetchInterval: 10000  // 每 10 秒自动刷新
-})
-```
+## 常见问题
 
-## 部署
+### MetaMask 连接失败
+确保已安装 MetaMask 扩展并解锁钱包。
 
-### Vercel 部署
-
-1. 推送代码到 GitHub
-2. 连接到 Vercel
-3. 配置环境变量
-4. 自动部署
-
-### Docker 部署
-
-```bash
-docker build -t mini-amm-frontend .
-docker run -p 3000:3000 mini-amm-frontend
-```
-
-## 故障排除
-
-### 钱包连接失败
-
-1. 确保安装了 MetaMask
-2. 检查网络配置
-3. 刷新页面重试
-
-### 合约调用失败
-
-1. 检查合约地址配置
-2. 确保钱包已授权
-3. 检查账户余额
+### 交易失败
+检查：
+1. 账户余额是否足够
+2. 代币是否已授权
+3. Gas 费用是否足够
+4. 网络是否正确
 
 ### 数据不更新
+- 池子数据每 10 秒自动刷新
+- 余额数据每 10 秒自动刷新
+- 手动刷新页面可立即更新
 
-1. 检查 Subgraph 是否运行
-2. 清除浏览器缓存
-3. 刷新页面
+## 相关文档
 
-## 测试
-
-```bash
-# 运行测试
-npm run test
-
-# E2E 测试
-npm run test:e2e
-```
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建特性分支
-3. 提交更改
-4. 推送到分支
-5. 创建 Pull Request
+- [Ethers.js 迁移指南](./ETHERS_MIGRATION.md)
+- [Next.js 文档](https://nextjs.org/docs)
+- [ethers.js 文档](https://docs.ethers.org/v6/)
+- [Tailwind CSS 文档](https://tailwindcss.com/docs)
 
 ## License
 
 MIT
-
-## 相关资源
-
-- [Next.js 文档](https://nextjs.org/docs)
-- [Wagmi 文档](https://wagmi.sh/)
-- [RainbowKit 文档](https://www.rainbowkit.com/docs)
-- [TailwindCSS 文档](https://tailwindcss.com/docs)
