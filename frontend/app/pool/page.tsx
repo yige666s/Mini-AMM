@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
+import { usePoolData } from '@/lib/hooks/usePoolData'
 
 export default function PoolPage() {
   const [chartDuration, setChartDuration] = useState('24H')
+  const { poolData, loading } = usePoolData()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -22,26 +24,32 @@ export default function PoolPage() {
               <h3 className="text-sm font-medium text-gray-600">总锁定价值 (TVL)</h3>
               <div className="text-2xl">💰</div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">$20,000</p>
-            <p className="text-sm text-green-600 mt-2">+5.2% 24h</p>
+            <p className="text-3xl font-bold text-gray-900">
+              ${loading ? '...' : (parseFloat(poolData.reserveA) + parseFloat(poolData.reserveB)).toFixed(2)}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">实时数据</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-600">24h 交易量</h3>
+              <h3 className="text-sm font-medium text-gray-600">当前价格</h3>
               <div className="text-2xl">📊</div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">$1,234</p>
-            <p className="text-sm text-gray-500 mt-2">15 笔交易</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {loading ? '...' : poolData.price}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">1 TKA = {poolData.price} TKB</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-600">24h 手续费</h3>
+              <h3 className="text-sm font-medium text-gray-600">累积手续费</h3>
               <div className="text-2xl">💵</div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">$3.70</p>
-            <p className="text-sm text-gray-500 mt-2">0.3% 费率</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {loading ? '...' : parseFloat(poolData.feeA).toFixed(2)}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">TKA 手续费</p>
           </div>
         </div>
 
@@ -56,10 +64,14 @@ export default function PoolPage() {
                   </div>
                   <div>
                     <p className="font-semibold">Token A (TKA)</p>
-                    <p className="text-sm text-gray-500">10,000 TKA</p>
+                    <p className="text-sm text-gray-500">
+                      {loading ? '...' : parseFloat(poolData.reserveA).toFixed(2)} TKA
+                    </p>
                   </div>
                 </div>
-                <p className="text-lg font-bold">$10,000</p>
+                <p className="text-lg font-bold text-indigo-600">
+                  ${loading ? '...' : parseFloat(poolData.reserveA).toFixed(2)}
+                </p>
               </div>
 
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
@@ -69,17 +81,21 @@ export default function PoolPage() {
                   </div>
                   <div>
                     <p className="font-semibold">Token B (TKB)</p>
-                    <p className="text-sm text-gray-500">10,000 TKB</p>
+                    <p className="text-sm text-gray-500">
+                      {loading ? '...' : parseFloat(poolData.reserveB).toFixed(2)} TKB
+                    </p>
                   </div>
                 </div>
-                <p className="text-lg font-bold">$10,000</p>
+                <p className="text-lg font-bold text-purple-600">
+                  ${loading ? '...' : parseFloat(poolData.reserveB).toFixed(2)}
+                </p>
               </div>
             </div>
 
             <div className="mt-6 pt-6 border-t">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">当前价格</span>
-                <span className="font-semibold">1 TKA = 1.000 TKB</span>
+                <span className="font-semibold">1 TKA = {poolData.price} TKB</span>
               </div>
             </div>
           </div>
@@ -89,19 +105,21 @@ export default function PoolPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 <span className="text-gray-600">总 LP Token</span>
-                <span className="font-semibold">9,000 MINI-LP</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">LP 持有人</span>
-                <span className="font-semibold">5 人</span>
+                <span className="font-semibold text-indigo-600">
+                  {loading ? '...' : parseFloat(poolData.totalSupply).toFixed(2)} MINI-LP
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 <span className="text-gray-600">累积手续费 (A)</span>
-                <span className="font-semibold">3.5 TKA</span>
+                <span className="font-semibold text-indigo-600">
+                  {loading ? '...' : parseFloat(poolData.feeA).toFixed(2)} TKA
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 <span className="text-gray-600">累积手续费 (B)</span>
-                <span className="font-semibold">3.5 TKB</span>
+                <span className="font-semibold text-indigo-600">
+                  {loading ? '...' : parseFloat(poolData.feeB).toFixed(2)} TKB
+                </span>
               </div>
             </div>
 

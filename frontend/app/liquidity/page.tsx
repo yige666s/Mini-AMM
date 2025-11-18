@@ -1,13 +1,113 @@
 'use client'
 
 import { useState } from 'react'
+import { ethers } from 'ethers'
 import Navbar from '../components/Navbar'
+import { useWeb3 } from '@/lib/Web3Context'
+import { useContracts } from '@/lib/hooks/useContracts'
+import { useTokenBalance } from '@/lib/hooks/useTokenBalance'
+import { usePoolData } from '@/lib/hooks/usePoolData'
 
 export default function LiquidityPage() {
+  const { account, connect } = useWeb3()
+  const { miniAMM, tokenA, tokenB } = useContracts()
+  const { poolData } = usePoolData()
   const [tab, setTab] = useState<'add' | 'remove'>('add')
   const [amountA, setAmountA] = useState('')
   const [amountB, setAmountB] = useState('')
   const [lpAmount, setLpAmount] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [txHash, setTxHash] = useState('')
+
+  const balanceA = useTokenBalance('A')
+  const balanceB = useTokenBalance('B')
+
+  const handleAddLiquidity = async () => {
+    if (!account) {
+      await connect()
+      return
+    }
+
+    if (!miniAMM || !tokenA || !tokenB || !amountA || !amountB) {
+      alert('请输入有效的数量')
+      return
+    }
+
+    try {
+      setIsProcessing(true)
+      setTxHash('')
+
+      const amountAWei = ethers.parseEther(amountA)
+      const amountBWei = ethers.parseEther(amountB)
+
+      const [allowanceA, allowanceB] = await Promise.all([
+        tokenA.allowance(account, await miniAMM.getAddress()),
+        tokenB.allowance(account, await miniAMM.getAddress()),
+      ])
+
+      if (allowanceA < amountAWei) {
+        const approveTx = await tokenA.approve(await miniAMM.getAddress(), ethers.MaxUint256)
+        await approveTx.wait()
+      }
+
+      if (allowanceB < amountBWei) {
+        const approveTx = await tokenB.approve(await miniAMM.getAddress(), ethers.MaxUint256)
+        await approveTx.wait()
+      }
+
+      const addLiqTx = await miniAMM.addLiquidity(amountAWei, amountBWei)
+      const receipt = await addLiqTx.wait()
+
+      setTxHash(receipt.hash)
+      setAmountA('')
+      setAmountB('')
+      alert('添加流动性成功!')
+    } catch (error: any) {
+      console.error('添加流动性失败:', error)
+      alert(error.message || '添加流动性失败，请重试')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleRemoveLiquidity = async () => {
+    if (!account) {
+      await connect()
+      return
+    }
+
+    if (!miniAMM || !lpAmount) {
+      alert('请输入有效的 LP Token 数量')
+      return
+    }
+
+    try {
+      setIsProcessing(true)
+      setTxHash('')
+
+      const lpAmountWei = ethers.parseEther(lpAmount)
+      const removeLiqTx = await miniAMM.removeLiquidity(lpAmountWei)
+      const receipt = await removeLiqTx.wait()
+
+      setTxHash(receipt.hash)
+      setLpAmount('')
+      alert('移除流动性成功!')
+    } catch (error: any) {
+      console.error('移除流动性失败:', error)
+      alert(error.message || '移除流动性失败，请重试')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const setLpPercentage = (percentage: number) => {
+    if (!miniAMM || !account) return
+    
+    miniAMM.balanceOf(account).then((balance: bigint) => {
+      const amount = (balance * BigInt(percentage)) / BigInt(100)
+      setLpAmount(ethers.formatEther(amount))
+    }).catch(console.error)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -58,7 +158,7 @@ export default function LiquidityPage() {
                     className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="text-sm text-gray-500 mt-2">
-                    余额: 0.00 TKA
+                    余额: {balanceA.loading ? '...' : balanceA.balance} TKA
                   </div>
                 </div>
               </div>
@@ -80,7 +180,7 @@ export default function LiquidityPage() {
                     className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="text-sm text-gray-500 mt-2">
-                    余额: 0.00 TKB
+                    余额: {balanceB.loading ? '...' : balanceB.balance} TKB
                   </div>
                 </div>
               </div>
@@ -88,20 +188,20 @@ export default function LiquidityPage() {
               <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">当前价格</span>
-                  <span className="font-semibold text-gray-900">1 TKA = <span className="text-indigo-600">1.000</span> TKB</span>
+                  <span className="font-semibold text-gray-900">1 TKA = <span className="text-indigo-600">{poolData.price}</span> TKB</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">池子份额</span>
-                  <span className="font-semibold text-indigo-600">0%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">预计获得 LP Token</span>
-                  <span className="font-semibold text-indigo-600">0.00</span>
+                  <span className="text-gray-600">总 LP Token</span>
+                  <span className="font-semibold text-indigo-600">{parseFloat(poolData.totalSupply).toFixed(2)}</span>
                 </div>
               </div>
 
-              <button className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition">
-                添加流动性
+              <button
+                onClick={handleAddLiquidity}
+                disabled={isProcessing || !amountA || !amountB}
+                className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {!account ? '连接钱包' : isProcessing ? '处理中...' : '添加流动性'}
               </button>
             </div>
           ) : (
@@ -130,38 +230,54 @@ export default function LiquidityPage() {
               </div>
 
               <div className="flex justify-center gap-2">
-                <button className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                <button 
+                  onClick={() => setLpPercentage(25)}
+                  className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
                   25%
                 </button>
-                <button className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                <button 
+                  onClick={() => setLpPercentage(50)}
+                  className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
                   50%
                 </button>
-                <button className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                <button 
+                  onClick={() => setLpPercentage(75)}
+                  className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
                   75%
                 </button>
-                <button className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                <button 
+                  onClick={() => setLpPercentage(100)}
+                  className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
                   100%
                 </button>
               </div>
 
               <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">将获得 TKA</span>
-                  <span className="font-semibold text-indigo-600">0.00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">将获得 TKB</span>
-                  <span className="font-semibold text-indigo-600">0.00</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-gray-600">当前价格</span>
-                  <span className="font-semibold text-gray-900">1 TKA = <span className="text-indigo-600">1.000</span> TKB</span>
+                  <span className="font-semibold text-gray-900">1 TKA = <span className="text-indigo-600">{poolData.price}</span> TKB</span>
                 </div>
               </div>
 
-              <button className="w-full bg-red-600 text-white py-4 rounded-xl font-semibold hover:bg-red-700 transition">
-                移除流动性
+              <button
+                onClick={handleRemoveLiquidity}
+                disabled={isProcessing || !lpAmount}
+                className="w-full bg-red-600 text-white py-4 rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {!account ? '连接钱包' : isProcessing ? '处理中...' : '移除流动性'}
               </button>
+            </div>
+          )}
+
+          {txHash && (
+            <div className="mt-4 p-4 bg-green-50 rounded-lg">
+              <p className="text-sm text-green-800">
+                交易成功! 哈希: {txHash.slice(0, 10)}...{txHash.slice(-8)}
+              </p>
             </div>
           )}
 
@@ -178,13 +294,6 @@ export default function LiquidityPage() {
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="mt-6 bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4">你的流动性头寸</h3>
-          <div className="text-sm text-gray-500 text-center py-8">
-            暂无流动性头寸
           </div>
         </div>
       </main>
