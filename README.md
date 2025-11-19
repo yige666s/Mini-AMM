@@ -305,6 +305,27 @@ query {
 }
 ```
 
+## 📚 文档
+
+- **[完整文档](./docs/README.md)** - 文档导航中心
+- **[用户使用指南](./docs/USER_GUIDE.md)** - 如何使用平台
+- **[测试网部署指南](./docs/TESTNET_DEPLOYMENT.md)** - 完整部署流程
+- **[架构文档](./docs/ARCHITECTURE.md)** - 技术架构详解
+- **[API 文档](./docs/API.md)** - 接口说明
+- **[面试问答文档](./docs/INTERVIEW_QA.md)** ⭐ - 42个深度技术问题及答案
+
+## 💼 作为面试项目
+
+本项目非常适合作为面试展示项目，涵盖了完整的 Web3 技术栈：
+
+- ✅ **智能合约**：Solidity、AMM 算法、Gas 优化、安全设计
+- ✅ **后端服务**：Go、自动化 Bot、数据库集成、REST API
+- ✅ **数据索引**：The Graph、GraphQL、时间序列数据
+- ✅ **前端开发**：Next.js、ethers.js v6、React Hooks、实时更新
+- ✅ **系统架构**：微服务、容错设计、性能优化
+
+👉 查看 **[面试问答文档](./docs/INTERVIEW_QA.md)** 了解如何在面试中展示这个项目
+
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
