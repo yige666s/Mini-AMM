@@ -116,7 +116,7 @@ export default function Home() {
         '交易记录 - 完整的交易历史',
         '收益统计 - 手续费收入追踪'
       ],
-			link: '/pool',
+            link: '/pool',
       buttonText: '查看详情',
       gradient: 'from-teal-500/10 to-cyan-500/10',
       borderColor: 'border-teal-500/30'
@@ -160,7 +160,7 @@ export default function Home() {
   })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <Navbar currentPath="/" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -174,7 +174,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <h1 className="text-5xl font-bold text-black mb-4">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
             Mini-AMM 智能交易平台
           </h1>
           <p className="text-xl text-gray-700 mb-2">
@@ -191,34 +191,34 @@ export default function Home() {
             return (
               <div
                 key={feature.id}
-                className="bg-slate-800/50 backdrop-blur rounded-xl p-6 border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10"
+                className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
                     <div className={`bg-gradient-to-br ${feature.gradient} p-3 rounded-lg border ${feature.borderColor}`}>
-                      <Icon className="text-blue-400" size={24} />
+                      <Icon className="text-indigo-600" size={24} />
                     </div>
-                    <h3 className="text-xl font-bold text-white">{feature.title}</h3>
+                    <h3 className="text-xl font-bold text-gray-900">{feature.title}</h3>
                   </div>
                   <button
                     onClick={() => toggleCard(feature.id)}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                   </button>
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-300 mb-4 leading-relaxed">{feature.description}</p>
+                <p className="text-gray-700 mb-4 leading-relaxed">{feature.description}</p>
 
                 {/* Benefits - Expandable */}
                 {isExpanded && (
                   <div className="mb-4 space-y-2 animate-fade-in">
-                    <div className="text-sm font-semibold text-gray-400 mb-2">💡 核心优势：</div>
+                    <div className="text-sm font-semibold text-gray-600 mb-2">💡 核心优势：</div>
                     {feature.benefits.map((benefit, idx) => (
-                      <div key={idx} className="flex items-start space-x-2 text-sm text-gray-300">
-                        <span className="text-blue-400 mt-0.5">•</span>
+                      <div key={idx} className="flex items-start space-x-2 text-sm text-gray-700">
+                        <span className="text-indigo-600 mt-0.5">•</span>
                         <span>{benefit}</span>
                       </div>
                     ))}
@@ -230,40 +230,40 @@ export default function Home() {
         </div>
 
         {/* Tips Section */}
-        <div className="bg-slate-800/50 backdrop-blur rounded-xl p-8 border border-slate-700">
+        <div className="bg-white rounded-xl p-8 shadow-md">
           <div className="flex items-center space-x-3 mb-6">
             <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-3 rounded-lg border border-indigo-500/30">
-              <Zap className="text-indigo-400" size={24} />
+              <Zap className="text-indigo-600" size={24} />
             </div>
-            <h3 className="text-2xl font-bold text-white">快速开始</h3>
+            <h3 className="text-2xl font-bold text-gray-900">快速开始</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-700/30 rounded-lg p-4">
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-3xl mb-3">🔗</div>
-              <h4 className="font-semibold text-lg mb-2 text-white">1. 连接钱包</h4>
-              <p className="text-sm text-gray-400">点击右上角按钮连接您的 MetaMask 钱包</p>
+              <h4 className="font-semibold text-lg mb-2 text-gray-900">1. 连接钱包</h4>
+              <p className="text-sm text-gray-600">点击右上角按钮连接您的 MetaMask 钱包</p>
             </div>
 
-            <div className="bg-slate-700/30 rounded-lg p-4">
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-3xl mb-3">💰</div>
-              <h4 className="font-semibold text-lg mb-2 text-white">2. 获取代币</h4>
-              <p className="text-sm text-gray-400">准备 Token A 和 Token B 用于交易或提供流动性</p>
+              <h4 className="font-semibold text-lg mb-2 text-gray-900">2. 获取代币</h4>
+              <p className="text-sm text-gray-600">准备 Token A 和 Token B 用于交易或提供流动性</p>
             </div>
 
-            <div className="bg-slate-700/30 rounded-lg p-4">
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-3xl mb-3">🚀</div>
-              <h4 className="font-semibold text-lg mb-2 text-white">3. 开始使用</h4>
-              <p className="text-sm text-gray-400">交换代币或提供流动性，享受自动复投收益</p>
+              <h4 className="font-semibold text-lg mb-2 text-gray-900">3. 开始使用</h4>
+              <p className="text-sm text-gray-600">交换代币或提供流动性，享受自动复投收益</p>
             </div>
           </div>
 
-          <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start space-x-3">
               <div className="text-2xl">📚</div>
               <div>
-                <h4 className="font-semibold text-blue-400 mb-1">了解更多</h4>
-                <p className="text-sm text-gray-300">
+                <h4 className="font-semibold text-blue-700 mb-1">了解更多</h4>
+                <p className="text-sm text-gray-700">
                   Mini-AMM 采用恒定乘积做市商（CPMM）算法，每笔交易收取 0.3% 手续费分配给流动性提供者。
                   智能机器人会自动将累积的手续费再投资到流动性池，实现复利增长。
                 </p>
@@ -273,9 +273,9 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="bg-slate-800/50 backdrop-blur mt-12 py-8 border-t border-slate-700">
+      <footer className="bg-white mt-12 py-8 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-600 text-sm">
             © 2025 Mini-AMM. All rights reserved.
           </p>
         </div>
