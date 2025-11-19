@@ -16,6 +16,24 @@ type Server struct {
 	handler    *Handler
 }
 
+// corsMiddleware 添加 CORS 头
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 设置 CORS 头
+		w.Header().Set("Access-Control-Allow-Origin", "*") // 允许所有origin，或指定为 "http://155.94.154.240:4000"
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// 处理预检请求
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func NewServer(port int, repo *db.BotActionRepository, config *util.Config) *Server {
 	handler := NewHandler(repo, config)
 
@@ -29,10 +47,13 @@ func NewServer(port int, repo *db.BotActionRepository, config *util.Config) *Ser
 		w.Write([]byte(`{"status":"ok"}`))
 	})
 
+	// 包装 mux 以添加 CORS 中间件
+	corsHandler := corsMiddleware(mux)
+
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         fmt.Sprintf(":%d", port),
-			Handler:      mux,
+			Handler:      corsHandler,
 			ReadTimeout:  15 * time.Second,
 			WriteTimeout: 15 * time.Second,
 			IdleTimeout:  60 * time.Second,

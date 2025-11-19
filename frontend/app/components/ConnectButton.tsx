@@ -38,9 +38,36 @@ export default function ConnectButton() {
 
   const copyAddress = () => {
     if (account) {
-      navigator.clipboard.writeText(account)
-      alert('地址已复制到剪贴板')
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(account).then(() => {
+          alert('地址已复制到剪贴板')
+        }).catch(err => {
+          console.error('复制失败:', err)
+          fallbackCopyTextToClipboard(account)
+        })
+      } else {
+        fallbackCopyTextToClipboard(account)
+      }
     }
+  }
+
+  const fallbackCopyTextToClipboard = (text: string) => {
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    try {
+      document.execCommand('copy')
+      alert('地址已复制到剪贴板')
+    } catch (err) {
+      console.error('备用复制失败:', err)
+      alert('复制失败，请手动复制')
+    }
+    document.body.removeChild(textArea)
   }
 
   if (!account) {

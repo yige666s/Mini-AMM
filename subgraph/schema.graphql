@@ -1,4 +1,4 @@
-type Pool @entity {
+type Pool @entity(immutable: false) {
   id: ID!
   tokenA: Bytes!
   tokenB: Bytes!
@@ -12,7 +12,7 @@ type Pool @entity {
   updatedAt: BigInt!
 }
 
-type Swap @entity {
+type Swap @entity(immutable: false) {
   id: ID!
   pool: Pool!
   user: Bytes!
@@ -23,7 +23,7 @@ type Swap @entity {
   transactionHash: Bytes!
 }
 
-type Mint @entity {
+type Mint @entity(immutable: false) {
   id: ID!
   pool: Pool!
   provider: Bytes!
@@ -34,7 +34,7 @@ type Mint @entity {
   transactionHash: Bytes!
 }
 
-type Burn @entity {
+type Burn @entity(immutable: false) {
   id: ID!
   pool: Pool!
   provider: Bytes!
@@ -45,7 +45,7 @@ type Burn @entity {
   transactionHash: Bytes!
 }
 
-type FeeCollection @entity {
+type FeeCollection @entity(immutable: false) {
   id: ID!
   pool: Pool!
   feeA: BigInt!
@@ -54,7 +54,7 @@ type FeeCollection @entity {
   transactionHash: Bytes!
 }
 
-type RebalanceAction @entity {
+type RebalanceAction @entity(immutable: false) {
   id: ID!
   pool: Pool!
   amountIn: BigInt!
@@ -64,7 +64,7 @@ type RebalanceAction @entity {
   transactionHash: Bytes!
 }
 
-type BotAction @entity {
+type BotAction @entity(immutable: false) {
   id: ID!
   pool: Pool!
   action: String!
@@ -74,7 +74,7 @@ type BotAction @entity {
   transactionHash: Bytes!
 }
 
-type User @entity {
+type User @entity(immutable: false) {
   id: ID!
   address: Bytes!
   liquidityBalance: BigInt!
@@ -83,7 +83,7 @@ type User @entity {
   totalValueRemoved: BigInt!
 }
 
-type PoolDayData @entity {
+type PoolDayData @entity(immutable: false) {
   id: ID!
   pool: Pool!
   date: Int!
@@ -96,7 +96,7 @@ type PoolDayData @entity {
   reserveB: BigInt!
 }
 
-type PoolHourData @entity {
+type PoolHourData @entity(immutable: false) {
   id: ID!
   pool: Pool!
   hour: Int!

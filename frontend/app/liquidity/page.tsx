@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import Navbar from '../components/Navbar'
 import { useWeb3 } from '@/lib/Web3Context'
@@ -20,9 +20,25 @@ export default function LiquidityPage() {
   const [lpAmount, setLpAmount] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [txHash, setTxHash] = useState('')
+  const [lpBalance, setLpBalance] = useState('0.00')
 
   const balanceA = useTokenBalance('A')
   const balanceB = useTokenBalance('B')
+
+  const refreshLpBalance = async () => {
+    if (miniAMM && account) {
+      try {
+        const balance = await miniAMM.balanceOf(account)
+        setLpBalance(ethers.formatEther(balance))
+      } catch (error) {
+        console.error('获取 LP 余额失败:', error)
+      }
+    }
+  }
+
+  useEffect(() => {
+    refreshLpBalance()
+  }, [miniAMM, account])
 
   const handleAddLiquidity = async () => {
     if (!account) {
@@ -67,6 +83,7 @@ export default function LiquidityPage() {
       setAmountA('')
       setAmountB('')
       showToast('添加流动性成功!', 'success')
+      refreshLpBalance()
     } catch (error: any) {
       console.error('添加流动性失败:', error)
       showToast(error.message || '添加流动性失败，请重试', 'error')
@@ -98,6 +115,7 @@ export default function LiquidityPage() {
       setTxHash(receipt.hash)
       setLpAmount('')
       showToast('移除流动性成功!', 'success')
+      refreshLpBalance()
     } catch (error: any) {
       console.error('移除流动性失败:', error)
       showToast(error.message || '移除流动性失败，请重试', 'error')
@@ -230,7 +248,7 @@ export default function LiquidityPage() {
                     className="bg-transparent text-2xl font-semibold outline-none w-full text-gray-900"
                   />
                   <div className="text-sm text-gray-500 mt-2">
-                    余额: 0.00 MINI-LP
+                    余额: {lpBalance} MINI-LP
                   </div>
                 </div>
               </div>

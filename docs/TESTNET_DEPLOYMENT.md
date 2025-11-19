@@ -124,6 +124,17 @@ cd ../bot
 cp .env.example .env
 ```
 
+# 私钥（Hardhat 默认账户 #0）
+PRIVATE_KEY=eb32c62c1cf912cc91083ec8359344d783323b55fea4aabd7cee0f06716e9732
+
+# Subgraph 配置
+NEXT_PUBLIC_SUBGRAPH_URL=http://localhost:8000/subgraphs/name/mini-amm-subgraph
+
+# 测试网配置（可选）
+SEPOLIA_RPC_URL=https://rpc.sepolia.org
+ETHERSCAN_API_KEY=4D7ASNS1S8ZCZ9HDNA185FI5DQ9J8A1M8H
+
+
 编辑 `bot/.env`：
 
 ```env
@@ -353,13 +364,13 @@ npm run build
 #### a. 认证
 
 ```bash
-graph auth --studio YOUR_DEPLOY_KEY
+graph auth 5c906c99056fa1e1799d78de4974f424
 ```
 
 #### b. 部署
 
 ```bash
-graph deploy --studio mini-amm-sepolia
+graph deploy  mini-amm
 ```
 
 选择版本号（例如：v0.0.1）。
@@ -374,7 +385,7 @@ graph deploy --studio mini-amm-sepolia
 
 同步完成后，您会获得一个查询 URL：
 ```
-https://api.studio.thegraph.com/query/<ID>/mini-amm-sepolia/v0.0.1
+https://api.studio.thegraph.com/query/1715621/mini-amm/version/latest
 ```
 
 **将此 URL 保存到前端环境变量中！**

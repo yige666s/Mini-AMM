@@ -10,6 +10,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['recharts', 'ethers'],
   },
+  // 允许来自特定IP的开发模式跨域请求
+  allowedDevOrigins: ['155.94.154.240'],
 };
 
 module.exports = nextConfig;
