@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -23,6 +24,7 @@ type TransactionService struct {
 	privateKey  *ecdsa.PrivateKey
 	fromAddress common.Address
 	contract    *MiniAMMContract
+	mutex       sync.Mutex // 互斥锁，防止并发交易
 }
 
 func NewTransactionService(config *util.Config, rpcClient *util.RPCClient) (*TransactionService, error) {
@@ -91,6 +93,9 @@ func (t *TransactionService) GetTransactOpts() (*bind.TransactOpts, error) {
 }
 
 func (t *TransactionService) ExecuteCompoundFees() (*types.Transaction, error) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	auth, err := t.GetTransactOpts()
 	if err != nil {
 		return nil, err
@@ -105,6 +110,9 @@ func (t *TransactionService) ExecuteCompoundFees() (*types.Transaction, error) {
 }
 
 func (t *TransactionService) ExecuteRebalance(amount *big.Int, AtoB bool) (*types.Transaction, error) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	auth, err := t.GetTransactOpts()
 	if err != nil {
 		return nil, err

@@ -203,9 +203,15 @@ contract MiniAMM is LPToken {
             } else {
                 compoundA = (compoundB * reserveA) / reserveB;
             }
+        } else if (compoundA > 0) {
+            // 只有A侧有手续费，保持A侧，B侧设为0
+            compoundB = 0;
+        } else if (compoundB > 0) {
+            // 只有B侧有手续费，保持B侧，A侧设为0
+            compoundA = 0;
         }
         
-        require(compoundA > 0 && compoundB > 0, "Insufficient amounts");
+        require(compoundA > 0 || compoundB > 0, "Insufficient amounts");
         
         emit FeeCollected(compoundA, compoundB, block.timestamp);
         
@@ -213,10 +219,19 @@ contract MiniAMM is LPToken {
         feeB -= compoundB;
         
         uint256 _totalSupply = totalSupply;
-        liquidity = min(
-            (compoundA * _totalSupply) / reserveA,
-            (compoundB * _totalSupply) / reserveB
-        );
+        if (compoundA > 0 && compoundB > 0) {
+            // 两侧都有手续费，使用标准计算
+            liquidity = min(
+                (compoundA * _totalSupply) / reserveA,
+                (compoundB * _totalSupply) / reserveB
+            );
+        } else if (compoundA > 0) {
+            // 只有A侧手续费
+            liquidity = (compoundA * _totalSupply) / reserveA;
+        } else if (compoundB > 0) {
+            // 只有B侧手续费
+            liquidity = (compoundB * _totalSupply) / reserveB;
+        }
         
         require(liquidity > 0, "Insufficient liquidity minted");
         _mint(bot, liquidity);

@@ -23,7 +23,7 @@ export interface BotStats {
   latestAction: BotAction | null
 }
 
-export function useBotActions(filter: 'all' | 'compound' | 'rebalance' = 'all', limit: number = 20) {
+export function useBotActions(filter: 'all' | 'compound' | 'rebalance' = 'all', limit: number = 10) {
   const [actions, setActions] = useState<BotAction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -63,6 +63,17 @@ export function useBotActions(filter: 'all' | 'compound' | 'rebalance' = 'all', 
   }, [filter, limit])
 
   return { actions, loading, error }
+}
+
+export interface BotConfig {
+  compoundInterval: number
+  rebalanceInterval: number
+  rebalanceThreshold: number
+  gasLimit: number
+  maxGasPrice: number
+  retryAttempts: number
+  retryDelay: number
+  chainId: number
 }
 
 export function useBotStats() {
@@ -105,4 +116,47 @@ export function useBotStats() {
   }, [])
 
   return { stats, loading, error }
+}
+
+export function useBotConfig() {
+  const [config, setConfig] = useState<BotConfig>({
+    compoundInterval: 300,
+    rebalanceInterval: 60,
+    rebalanceThreshold: 0.05,
+    gasLimit: 300000,
+    maxGasPrice: 100,
+    retryAttempts: 3,
+    retryDelay: 5,
+    chainId: 31337,
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        setLoading(true)
+        
+        const response = await fetch(`${API_URL}/api/bot-config`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch bot config')
+        }
+
+        const result = await response.json()
+        setConfig(result.config || config)
+        setError(null)
+      } catch (err: any) {
+        console.error('Error fetching bot config:', err)
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchConfig()
+    const interval = setInterval(fetchConfig, 30000) // 每30秒刷新一次
+    return () => clearInterval(interval)
+  }, [])
+
+  return { config, loading, error }
 }

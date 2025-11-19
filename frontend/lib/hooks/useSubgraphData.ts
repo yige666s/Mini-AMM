@@ -17,11 +17,12 @@ interface BotAction {
   id: string
   timestamp: string
   actionType: 'COMPOUND' | 'REBALANCE'
-  amountA: string
-  amountB: string
+  amountA?: string
+  amountB?: string
   txHash: string
   direction?: string
-  priceDeviation?: string
+  feeA?: string
+  feeB?: string
 }
 
 export function useSwapHistory(limit: number = 20) {
@@ -86,22 +87,22 @@ export function useBotHistory(filter: 'all' | 'compound' | 'rebalance' = 'all', 
       try {
         setLoading(true)
         
-        let whereClause = ''
-        if (filter === 'compound') {
-          whereClause = '(where: { actionType: "COMPOUND" })'
-        } else if (filter === 'rebalance') {
-          whereClause = '(where: { actionType: "REBALANCE" })'
-        }
-        
         const query = `
           {
-            botActions${whereClause}(first: ${limit}, orderBy: timestamp, orderDirection: desc) {
+            feeCollections(first: ${limit}, orderBy: timestamp, orderDirection: desc) {
               id
+              feeA
+              feeB
               timestamp
-              actionType
-              amountA
-              amountB
-              txHash
+              transactionHash
+            }
+            rebalanceActions(first: ${limit}, orderBy: timestamp, orderDirection: desc) {
+              id
+              amountIn
+              amountOut
+              AtoB
+              timestamp
+              transactionHash
             }
           }
         `
@@ -117,7 +118,44 @@ export function useBotHistory(filter: 'all' | 'compound' | 'rebalance' = 'all', 
         }
 
         const result = await response.json()
-        setActions(result.data?.botActions || [])
+        
+        // 合并并转换数据
+        const feeCollections = result.data?.feeCollections || []
+        const rebalanceActions = result.data?.rebalanceActions || []
+        
+        const combinedActions: BotAction[] = [
+          ...feeCollections.map((fc: any) => ({
+            id: fc.id,
+            timestamp: fc.timestamp,
+            actionType: 'COMPOUND' as const,
+            feeA: fc.feeA,
+            feeB: fc.feeB,
+            txHash: fc.transactionHash,
+          })),
+          ...rebalanceActions.map((ra: any) => ({
+            id: ra.id,
+            timestamp: ra.timestamp,
+            actionType: 'REBALANCE' as const,
+            amountA: ra.AtoB ? ra.amountIn : ra.amountOut,
+            amountB: ra.AtoB ? ra.amountOut : ra.amountIn,
+            txHash: ra.transactionHash,
+            direction: ra.AtoB ? 'AtoB' : 'BtoA',
+          })),
+        ]
+        
+        // 按时间戳排序
+        combinedActions.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
+        
+        // 应用过滤
+        let filteredActions = combinedActions
+        if (filter === 'compound') {
+          filteredActions = combinedActions.filter(a => a.actionType === 'COMPOUND')
+        } else if (filter === 'rebalance') {
+          filteredActions = combinedActions.filter(a => a.actionType === 'REBALANCE')
+        }
+        
+        // 限制数量
+        setActions(filteredActions.slice(0, limit))
         setError(null)
       } catch (err: any) {
         console.error('Error fetching bot actions:', err)

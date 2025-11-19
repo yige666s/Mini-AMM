@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 	"mini-amm-bot/internal/db"
 	"mini-amm-bot/internal/models"
+	"mini-amm-bot/internal/util"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type Handler struct {
-	repo *db.BotActionRepository
+	repo   *db.BotActionRepository
+	config *util.Config
 }
 
-func NewHandler(repo *db.BotActionRepository) *Handler {
-	return &Handler{repo: repo}
+func NewHandler(repo *db.BotActionRepository, config *util.Config) *Handler {
+	return &Handler{repo: repo, config: config}
 }
 
 type ErrorResponse struct {
@@ -38,9 +41,9 @@ func (h *Handler) GetBotActions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query()
-	
+
 	filter := db.QueryFilter{
-		Limit:  20, // Default limit
+		Limit:  10, // Default limit
 		Offset: 0,
 	}
 
@@ -120,5 +123,41 @@ func (h *Handler) GetBotStats(w http.ResponseWriter, r *http.Request) {
 		"compoundCount":  compoundCount,
 		"rebalanceCount": rebalanceCount,
 		"latestAction":   latestAction,
+	})
+}
+
+func (h *Handler) GetBotConfig(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(ErrorResponse{Error: "Method not allowed"})
+		return
+	}
+
+	config, _ := util.LoadConfig()
+
+	ret := map[string]interface{}{
+		"compoundInterval":   int(config.CompoundInterval / time.Second),
+		"rebalanceInterval":  int(config.RebalanceInterval / time.Second),
+		"rebalanceThreshold": config.RebalanceThreshold,
+		"gasLimit":           config.GasLimit,
+		"maxGasPrice":        config.MaxGasPrice,
+		"retryAttempts":      config.RetryAttempts,
+		"retryDelay":         config.RetryDelay,
+		"chainId":            config.ChainID,
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"config":  ret,
 	})
 }

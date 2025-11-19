@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"mini-amm-bot/internal/db"
+	"mini-amm-bot/internal/util"
 	"net/http"
 	"time"
 
@@ -15,12 +16,13 @@ type Server struct {
 	handler    *Handler
 }
 
-func NewServer(port int, repo *db.BotActionRepository) *Server {
-	handler := NewHandler(repo)
+func NewServer(port int, repo *db.BotActionRepository, config *util.Config) *Server {
+	handler := NewHandler(repo, config)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/bot-actions", handler.GetBotActions)
 	mux.HandleFunc("/api/bot-stats", handler.GetBotStats)
+	mux.HandleFunc("/api/bot-config", handler.GetBotConfig)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
-import { useBotActions, useBotStats } from '@/lib/hooks/useBotActions'
+import { useBotActions, useBotStats, useBotConfig } from '@/lib/hooks/useBotActions'
 
 export default function BotPage() {
   const [filter, setFilter] = useState<'all' | 'compound' | 'rebalance'>('all')
-  const { actions, loading } = useBotActions(filter, 20)
+  const { actions, loading } = useBotActions(filter, 10)
   const { stats, loading: statsLoading } = useBotStats()
+  const { config, loading: configLoading } = useBotConfig()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -71,19 +72,27 @@ export default function BotPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">复投间隔</p>
-              <p className="text-lg font-semibold">5 分钟</p>
+              <p className="text-lg font-semibold">
+                {configLoading ? '...' : `${Math.floor(config.compoundInterval / 60)} 分钟`}
+              </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">再平衡间隔</p>
-              <p className="text-lg font-semibold">1 分钟</p>
+              <p className="text-lg font-semibold">
+                {configLoading ? '...' : `${config.rebalanceInterval} 秒`}
+              </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">再平衡阈值</p>
-              <p className="text-lg font-semibold">5%</p>
+              <p className="text-lg font-semibold">
+                {configLoading ? '...' : `${(config.rebalanceThreshold * 100).toFixed(1)}%`}
+              </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">最大 Gas Price</p>
-              <p className="text-lg font-semibold">100 Gwei</p>
+              <p className="text-lg font-semibold">
+                {configLoading ? '...' : `${config.maxGasPrice} Gwei`}
+              </p>
             </div>
           </div>
         </div>
@@ -220,7 +229,7 @@ export default function BotPage() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start">
                   <span className="text-indigo-500 mr-2">1.</span>
-                  <span>每 5 分钟检查累积的手续费</span>
+                  <span>每 {configLoading ? '...' : Math.floor(config.compoundInterval / 60)} 分钟检查累积的手续费</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-indigo-500 mr-2">2.</span>
@@ -241,11 +250,11 @@ export default function BotPage() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">1.</span>
-                  <span>每 1 分钟监控价格偏差</span>
+                  <span>每 {configLoading ? '...' : config.rebalanceInterval} 秒监控价格偏差</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">2.</span>
-                  <span>当偏差超过 5% 时触发</span>
+                  <span>当偏差超过 {configLoading ? '...' : (config.rebalanceThreshold * 100).toFixed(1)}% 时触发</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">3.</span>
