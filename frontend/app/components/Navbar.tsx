@@ -10,7 +10,7 @@ interface NavbarProps {
 
 export default function Navbar({ currentPath = '/' }: NavbarProps) {
   return (
-    <nav className="bg-slate-800/50 backdrop-blur border-b border-slate-700">
+    <nav className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
@@ -28,8 +28,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
               href="/" 
               className={`${
                 currentPath === '/' 
-                  ? 'text-blue-400 font-semibold' 
-                  : 'text-gray-300 hover:text-blue-400'
+                  ? 'text-blue-500 font-semibold' 
+                  : 'text-gray-700 hover:text-blue-500'
               } transition-colors`}
             >
               首页
@@ -38,8 +38,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
               href="/swap" 
               className={`${
                 currentPath === '/swap' 
-                  ? 'text-blue-400 font-semibold' 
-                  : 'text-gray-300 hover:text-blue-400'
+                  ? 'text-blue-500 font-semibold' 
+                  : 'text-gray-700 hover:text-blue-500'
               } transition-colors`}
             >
               交换
@@ -48,8 +48,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
               href="/liquidity" 
               className={`${
                 currentPath === '/liquidity' 
-                  ? 'text-blue-400 font-semibold' 
-                  : 'text-gray-300 hover:text-blue-400'
+                  ? 'text-blue-500 font-semibold' 
+                  : 'text-gray-700 hover:text-blue-500'
               } transition-colors`}
             >
               流动性
@@ -58,8 +58,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
               href="/pool" 
               className={`${
                 currentPath === '/pool' 
-                  ? 'text-blue-400 font-semibold' 
-                  : 'text-gray-300 hover:text-blue-400'
+                  ? 'text-blue-500 font-semibold' 
+                  : 'text-gray-700 hover:text-blue-500'
               } transition-colors`}
             >
               池子
@@ -68,8 +68,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
               href="/bot" 
               className={`${
                 currentPath === '/bot' 
-                  ? 'text-blue-400 font-semibold' 
-                  : 'text-gray-300 hover:text-blue-400'
+                  ? 'text-blue-500 font-semibold' 
+                  : 'text-gray-700 hover:text-blue-500'
               } transition-colors`}
             >
               Bot 记录

@@ -42,7 +42,7 @@ export default function Home() {
     {
       id: 'swap',
       title: '代币交换',
-      description: '基于恒定乘积算法（x*y=k）的自动做市商，快速便捷地交换您的数字资产',
+      description: '基于恒定乘积算法的自动做市商，快速便捷地交换您的数字资产',
       icon: TrendingUp,
       category: 'trading',
       benefits: [
@@ -75,13 +75,11 @@ export default function Home() {
     },
     {
       id: 'bot',
-      title: '自动复投机器人',
+      title: '自动复投',
       description: '智能机器人自动将累积的手续费收益再投资，实现复利增长',
       icon: Bot,
       category: 'automation',
       benefits: [
-        '自动复投 - 定期将手续费重新注入流动性',
-        '智能触发 - 当手续费达到阈值时自动执行',
         '复利增长 - 让您的资产持续增长',
         '完整记录 - 查看所有复投操作历史'
       ],
@@ -99,7 +97,6 @@ export default function Home() {
       benefits: [
         '价格稳定 - 自动修正价格偏差',
         '智能监控 - 实时检测储备比例',
-        '自动执行 - 无需人工干预',
         '降低风险 - 减少无常损失'
       ],
       link: '/pool',
@@ -119,7 +116,7 @@ export default function Home() {
         '交易记录 - 完整的交易历史',
         '收益统计 - 手续费收入追踪'
       ],
-      link: '/pool',
+			link: '/pool',
       buttonText: '查看详情',
       gradient: 'from-teal-500/10 to-cyan-500/10',
       borderColor: 'border-teal-500/30'
@@ -163,7 +160,7 @@ export default function Home() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-white">
       <Navbar currentPath="/" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -177,88 +174,12 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <h1 className="text-5xl font-bold text-white mb-4">
+          <h1 className="text-5xl font-bold text-black mb-4">
             Mini-AMM 智能交易平台
           </h1>
-          <p className="text-xl text-gray-300 mb-2">
+          <p className="text-xl text-gray-700 mb-2">
             简单、安全、自动化的去中心化交易协议
           </p>
-          <p className="text-sm text-gray-400">
-            基于恒定乘积算法（x*y=k）+ 自动复投 + The Graph 数据索引
-          </p>
-        </div>
-
-        {/* Search & Filter */}
-        <div className="mb-8 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="搜索功能或描述..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
-            />
-          </div>
-          
-          <div className="flex flex-wrap gap-3">
-            {categories.map(cat => {
-              const Icon = cat.icon
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                    category === cat.id
-                      ? 'bg-blue-500 text-white shadow-lg scale-105'
-                      : 'bg-slate-800/50 text-gray-300 hover:bg-slate-700/50 border border-slate-700 hover:border-slate-600'
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span>{cat.name}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-4 border border-blue-500/30">
-            <div className="flex items-center justify-between mb-2">
-              <Zap className="text-blue-400" size={24} />
-              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">实时</span>
-            </div>
-            <div className="text-3xl font-bold text-blue-400 mb-1">0.3%</div>
-            <div className="text-sm text-gray-300">交易手续费</div>
-          </div>
-
-          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-4 border border-green-500/30">
-            <div className="flex items-center justify-between mb-2">
-              <Shield className="text-green-400" size={24} />
-              <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">安全</span>
-            </div>
-            <div className="text-3xl font-bold text-green-400 mb-1">100%</div>
-            <div className="text-sm text-gray-300">去中心化</div>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl p-4 border border-purple-500/30">
-            <div className="flex items-center justify-between mb-2">
-              <Bot className="text-purple-400" size={24} />
-              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">自动</span>
-            </div>
-            <div className="text-3xl font-bold text-purple-400 mb-1">24/7</div>
-            <div className="text-sm text-gray-300">机器人运行</div>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-xl p-4 border border-yellow-500/30">
-            <div className="flex items-center justify-between mb-2">
-              <BarChart3 className="text-yellow-400" size={24} />
-              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">透明</span>
-            </div>
-            <div className="text-3xl font-bold text-yellow-400 mb-1">{filteredFeatures.length}</div>
-            <div className="text-sm text-gray-300">核心功能</div>
-          </div>
         </div>
 
         {/* Main Content - Feature Cards */}
@@ -303,15 +224,6 @@ export default function Home() {
                     ))}
                   </div>
                 )}
-
-                {/* Action Button */}
-                <Link
-                  href={feature.link}
-                  className="flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all hover:shadow-lg group"
-                >
-                  <span>{feature.buttonText}</span>
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
               </div>
             )
           })}
@@ -362,31 +274,10 @@ export default function Home() {
       </main>
 
       <footer className="bg-slate-800/50 backdrop-blur mt-12 py-8 border-t border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-2 rounded-lg">
-                <Coins className="text-white" size={24} />
-              </div>
-              <div>
-                <div className="text-white font-bold">Mini-AMM</div>
-                <div className="text-sm text-gray-400">智能交易平台</div>
-              </div>
-            </div>
-            <div className="text-center text-gray-400 text-sm">
-              <p>简单、安全、智能的去中心化交易协议</p>
-            </div>
-            <div className="flex space-x-4 text-gray-400 text-sm">
-              <span className="flex items-center space-x-1">
-                <Shield size={16} />
-                <span>100% 去中心化</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <Zap size={16} />
-                <span>自动化运营</span>
-              </span>
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-gray-400 text-sm">
+            © 2025 Mini-AMM. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
