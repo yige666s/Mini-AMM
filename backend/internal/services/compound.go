@@ -66,8 +66,8 @@ func (c *CompoundService) GetMarketPrice(ctx context.Context) (*big.Float, error
 	if c.config.SimulatedMarketPrice > 0 {
 		// 使用正弦波模拟价格波动，周期为 60 秒，幅度为 ±10%
 		basePrice := c.config.SimulatedMarketPrice
-		amplitude := 0.1 // 10% 波动
-		period := 60.0   // 60 秒周期
+		amplitude := 0.05
+		period := 1800.0
 		t := float64(time.Now().Unix()) / period
 		fluctuation := amplitude * math.Sin(2*math.Pi*t)
 		price := basePrice * (1 + fluctuation)
